@@ -26,11 +26,13 @@ param (
 $ErrorActionPreference = "Stop"
 
 # Auto-locate latest files if not explicitly provided
+$downloadsDir = if ($env:USERPROFILE) { Join-Path $env:USERPROFILE "Downloads" } else { Join-Path $HOME "Downloads" }
+
 if (-not $ShopeeMassUpdatePath) {
-    $latestShopee = Get-ChildItem "C:\Users\user\Downloads\mass_update_sales_info_*.xlsx" -ErrorAction SilentlyContinue |
+    $latestShopee = Get-ChildItem (Join-Path $downloadsDir "mass_update_sales_info_*.xlsx") -ErrorAction SilentlyContinue |
         Sort-Object LastWriteTime -Descending | Select-Object -First 1
     if (-not $latestShopee) {
-        $latestShopee = Get-ChildItem "C:\Users\user\Downloads\mass_update_sales_info_*.csv" -ErrorAction SilentlyContinue |
+        $latestShopee = Get-ChildItem (Join-Path $downloadsDir "mass_update_sales_info_*.csv") -ErrorAction SilentlyContinue |
             Sort-Object LastWriteTime -Descending | Select-Object -First 1
     }
     if ($latestShopee) {
@@ -41,10 +43,10 @@ if (-not $ShopeeMassUpdatePath) {
 }
 
 if (-not $PosCatalogPath) {
-    $latestPos = Get-ChildItem "C:\Users\user\Downloads\Item*.csv" -ErrorAction SilentlyContinue |
+    $latestPos = Get-ChildItem (Join-Path $downloadsDir "Item*.csv") -ErrorAction SilentlyContinue |
         Sort-Object LastWriteTime -Descending | Select-Object -First 1
     if (-not $latestPos) {
-        $latestPos = Get-ChildItem "C:\Users\user\Downloads\Item*.xlsx" -ErrorAction SilentlyContinue |
+        $latestPos = Get-ChildItem (Join-Path $downloadsDir "Item*.xlsx") -ErrorAction SilentlyContinue |
             Sort-Object LastWriteTime -Descending | Select-Object -First 1
     }
     if ($latestPos) {
@@ -55,7 +57,7 @@ if (-not $PosCatalogPath) {
 }
 
 if (-not $OutputDirectory) {
-    $OutputDirectory = "C:\Users\user\Downloads"
+    $OutputDirectory = $downloadsDir
 }
 
 Write-Host "=================================================================" -ForegroundColor Cyan
