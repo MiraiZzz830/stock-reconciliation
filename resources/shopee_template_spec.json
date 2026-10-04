@@ -1,0 +1,26 @@
+{
+  "description": "Shopee Seller Centre Sales Info Mass Update template specifications and structural invariants.",
+  "template_version": "Sales Info Mass Update",
+  "data_start_row": 7,
+  "header_rows_count": 6,
+  "columns": {
+    "1": "Product ID",
+    "2": "Product Name",
+    "3": "Variation ID",
+    "4": "Variation Name",
+    "5": "Parent SKU",
+    "6": "SKU",
+    "7": "Original Price",
+    "8": "Discounted Price",
+    "9": "Price",
+    "10": "GTIN",
+    "11": "Stock"
+  },
+  "invariants": [
+    "Rows 1 through 6 are template metadata, instructions, and header definitions. They must be preserved exactly without modification.",
+    "Data rows begin strictly at Row 7 (index 7 in 1-based Excel row indexing).",
+    "Product ID and Variation ID must be treated as strings to avoid scientific notation truncation (e.g., 4.77684E+10).",
+    "Column 11 (Stock) must be an integer >= 0.",
+    "Every row starting from Row 7 must be evaluated and accounted for during reconciliation."
+  ]
+}

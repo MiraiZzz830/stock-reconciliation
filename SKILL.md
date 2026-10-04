@@ -70,7 +70,8 @@ When running a catalog or stock reconciliation:
    - Group pages strictly by brand and sub-series slug.
    - Ground every potential discrepancy strictly against the canonical POS list. If a flavor is marked "Out of Stock" on the web and does not exist in POS, filter it out as unstocked catalog template text.
 4. If reconciling against a Marketplace (Lazada / Shopee / TikTok):
-   - Execute `C:\Users\tanzi\.gemini\config\skills\stock-reconciliation\scripts\reconcile.py` via `uv run --with openpyxl python ...`.
+   - Primary execution: `python "C:\Users\user\.gemini\config\skills\stock-reconciliation\scripts\reconcile.py" "<pos_csv>" "<marketplace_excel>"`
+   - Fast native fallback (zero Python required): Use the precompiled C# engine via PowerShell `powershell -ExecutionPolicy Bypass -File "C:\Users\user\.gemini\config\skills\shopee-pos-reconcile\scripts\reconcile_shopee_pos.ps1"`
 5. Filter and categorize results:
    - **In Sync**: `Online Stock == POS SOHQ` and `Price == POS Price 1`.
    - **Real Discrepancies**: Online price != POS Price 1, or genuine POS item with SOH > 0 marked "Out of Stock".

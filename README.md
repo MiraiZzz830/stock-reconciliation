@@ -4,15 +4,15 @@
 
 [![Skill](https://img.shields.io/badge/Antigravity-Skill-blue.svg)](https://github.com/MiraiZzz830/stock-reconciliation)
 [![Status](https://img.shields.io/badge/Status-Production--Ready-green.svg)](https://github.com/MiraiZzz830/stock-reconciliation)
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://python.org)
+[![Cross-Platform](https://img.shields.io/badge/Engine-Python%20%7C%20C%23%20.NET-brightgreen.svg)](#running-the-reconciliation)
 
 ---
 
 ## Overview
 
 The **Stock Reconciliation Skill** provides deterministic matching and discrepancy auditing between:
-- **POS Systems**: SQL POS, Autocount, Xilnex, or any inventory CSV / Excel export.
-- **E-Commerce Marketplaces**: Lazada Price & Stock reports, Shopee Mass Update / Sales Info, TikTok Shop.
+- **POS Systems**: SQL POS, Autocount, Xilnex, or any inventory CSV / Excel export (`Item.csv`).
+- **E-Commerce Marketplaces**: Lazada Price & Stock reports (`pricestock*.xlsx`), Shopee Mass Update (`mass_update_sales_info_*.xlsx`), TikTok Shop.
 - **Online Stores**: Google Sites, Shopify, WooCommerce, or custom storefronts.
 
 It eliminates common AI pitfalls (hallucinated SKUs, false stock discrepancies, conflating formulation lines) by enforcing **9 strict invariants**.
@@ -37,32 +37,37 @@ It eliminates common AI pitfalls (hallucinated SKUs, false stock discrepancies, 
 
 ```
 stock-reconciliation/
-├── SKILL.md             # The agent skill definition and instruction manual
-├── scripts/
-│   └── reconcile.py     # Deterministic reconciliation engine
-├── .gitignore           # Ignores pycache and sensitive spreadsheet files
-└── README.md            # Documentation and usage guide
+├── SKILL.md                               # The agent skill definition and instruction manual
+├── README.md                              # Documentation and usage guide
+├── .gitignore                             # Ignores pycache and sensitive spreadsheet files
+├── resources/                             # Deterministic lookup tables & schema rules
+│   ├── servings_weight_equivalence.json   # Supplement serving-to-weight mapping
+│   ├── shopee_template_spec.json          # Marketplace header & column specifications
+│   └── subline_guardrails.json            # Distinctive subline tokens & isolation rules
+└── scripts/
+    ├── reconcile.py                       # Python reconciliation engine (SKU-aware, multi-channel)
+    ├── reconcile_shopee_pos.ps1           # Native high-speed Windows reconciliation script
+    ├── generate_shopee_upload.ps1         # Upload-ready template generator
+    ├── ReconcilerEngine.cs                # Compiled C# matching engine (zero-dependency)
+    └── ReconcilerEngine.dll               # Precompiled high-performance binary
 ```
 
 ---
 
-## Quick Usage
+## Running the Reconciliation
 
-### Prerequisites
-- Python 3.10+
-- `openpyxl`
+### Option 1: Native Windows / PowerShell (Zero Dependencies)
+Requires no Python or package installation. Reconciles thousands of rows in milliseconds:
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/reconcile_shopee_pos.ps1 -ShopeeMassUpdatePath "path/to/mass_update.xlsx" -PosCatalogPath "path/to/Item.csv"
+```
+*To generate upload-ready Excel files, add the `-ExportFiles` switch.*
 
-### Running the Reconciliation Script
+### Option 2: Python Engine
 ```bash
-# Run via uv:
-uv run --with openpyxl python scripts/reconcile.py "<path_to_pos_file.csv>" "<path_to_marketplace_file.xlsx>"
+# Run with python (requires openpyxl):
+python scripts/reconcile.py "path/to/Item.csv" "path/to/marketplace_export.xlsx"
 
-# Or with standard python:
-python scripts/reconcile.py "path/to/pos_export.csv" "path/to/marketplace_export.xlsx"
+# Or via uv:
+uv run --with openpyxl python scripts/reconcile.py "path/to/Item.csv" "path/to/marketplace_export.xlsx"
 ```
-
----
-
-## License
-
-Private repository for internal use.

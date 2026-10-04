@@ -66,14 +66,15 @@ SIZES = [
     ("12LBS", ["12LBS", "12LB"]),
     ("11.46LBS", ["11.46LBS", "11.46LB"]),
     ("10LBS", ["10LBS", "10LB"]),
-    ("7LBS", ["7LBS", "7.4LBS", "7.4LB"]),
+    ("7LBS", ["7LBS", "7.4LBS", "7.4LB", "7.3LBS", "3.3KG", "100 SERVINGS", "100SERVINGS", "100 SV", "100SV"]),
     ("6LBS", ["6LBS", "5.73LBS", "5.73LB", "6LB"]),
-    ("5LBS", ["5LBS", "5.02LBS", "5.03LBS", "5.09LBS", "5.01LBS", "5.28LBS", "5.2LBS", "4.95LBS", "4.99LBS", "5.02LB", "5.03LB", "2.27KG", "2.35KG", "2350G", "2350GM", "2270G", "2KG"]),
-    ("4LBS", ["4LBS", "4.4LBS", "4.4LB", "4.19LBS", "4.09LBS", "3.97LBS", "3.96LBS", "3.8LBS", "3.7LBS", "3.61LBS", "3.52LBS", "3.5LBS", "4LB"]),
+    ("5LBS", ["5LBS", "5.02LBS", "5.03LBS", "5.09LBS", "5.01LBS", "5.28LBS", "5.2LBS", "4.95LBS", "4.99LBS", "5.02LB", "5.03LB", "2.27KG", "2.35KG", "2350G", "2350GM", "2270G", "2KG", "67 SERVINGS", "67SERVINGS", "67 SV", "67SV", "74 SERVINGS", "74SERVINGS", "76 SERVINGS", "76SERVINGS"]),
+    ("4LBS", ["4LBS", "4.4LBS", "4.4LB", "4.5LBS", "4.5LB", "4.19LBS", "4.09LBS", "3.97LBS", "3.96LBS", "3.8LBS", "3.7LBS", "3.61LBS", "3.52LBS", "3.5LBS", "4LB", "56 SERVINGS", "56SERVINGS", "56 SV", "56SV"]),
     ("3LBS", ["3LBS", "3.06KG", "3060G", "3520G", "3520GM", "1.36KG"]),
-    ("2LBS", ["2LBS", "1.98LBS", "1.95LBS", "2.01LBS", "2.4LBS", "1.87LBS", "1.91LBS", "1.98LB", "1.95LB", "2.01LB", "907G", "1KG", "1.1KG", "1025G", "920G", "875G", "825G", "2LB"]),
-    ("1LBS", ["1LBS", "1.43LBS", "1.48LBS", "0.99LBS", "1.06LBS", "1.76LBS", "0.99LB", "1.48LB", "450G", "500G", "600G", "1LB"]),
-    ("SINGLE SERVING", ["SINGLE SERVING", "1 BAG", "1 TUB", "1S", "60ML", "220ML", "500ML"]),
+    ("2LBS", ["2LBS", "1.98LBS", "1.95LBS", "2.01LBS", "2.4LBS", "1.87LBS", "1.91LBS", "1.98LB", "1.95LB", "2.01LB", "907G", "1KG", "1.1KG", "1025G", "920G", "875G", "825G", "2LB", "36 SERVINGS", "36SERVINGS", "36 SV", "36SV", "35 SERVINGS", "35SERVINGS", "25 SERVINGS", "25SERVINGS"]),
+    ("1LBS", ["1LBS", "1.43LBS", "1.48LBS", "0.99LBS", "1.06LBS", "1.76LBS", "0.99LB", "1.48LB", "450G", "500G", "600G", "1LB", "14 SERVINGS", "14SERVINGS", "14 SV", "14SV"]),
+    ("500G", ["500G", "50 SERVINGS", "50SERVINGS", "50 SV", "50SV", "250G", "300G", "60 SERVINGS", "60SERVINGS"]),
+    ("SINGLE SERVING", ["SINGLE SERVING", "1 BAG", "1 TUB", "1S", "60ML", "220ML", "500ML", "1 PACK", "1 SACHET", "1 CAN", "1 BAR"]),
     ("1L", ["1L", "1000ML"]),
     ("750ML", ["750ML"]),
     ("700ML", ["700ML", "739ML"]),
@@ -202,8 +203,13 @@ def clean_flavor_string(s):
 
 def reconcile_inventory(pos_file_path, marketplace_file_path):
     pos_items = []
+    pos_by_code = {}
+    pos_by_barcode = {}
+
     with open(pos_file_path, mode='r', encoding='utf-8-sig', errors='replace') as f:
         for row in csv.DictReader(f):
+            code = row.get('Code', '').strip()
+            barcode = row.get('Barcode', '').strip()
             desc = row.get('Description', '').strip()
             brand = extract_brand_strict(desc)
             size = extract_size(desc)
@@ -215,21 +221,29 @@ def reconcile_inventory(pos_file_path, marketplace_file_path):
             for g in groups:
                 if 'SERVING' not in g.upper() and extract_size(g) == 'UNKNOWN' and 'PACK' not in g.upper():
                     flavor_tokens.update(clean_flavor_string(g))
-            pos_items.append({
-                'code': row.get('Code', '').strip(),
+
+            pos_obj = {
+                'code': code,
+                'barcode': barcode,
                 'desc': desc,
                 'sohq': float(row.get('SOHQ', 0) or 0),
+                'price1': float(row.get('Price 1', 0) or 0),
                 'brand': brand,
                 'size': size,
                 'ptype': ptype,
                 'subtype': subtype,
                 'multipack': multipack,
                 'flavor_tokens': flavor_tokens,
-            })
+            }
+            pos_items.append(pos_obj)
+            if code:
+                pos_by_code[code.upper()] = pos_obj
+            if barcode:
+                pos_by_barcode[barcode.upper()] = pos_obj
 
+    # Open marketplace workbook
     wb = openpyxl.load_workbook(marketplace_file_path, data_only=True)
     sheet = wb.active
-    # If sheet 'template' exists (Lazada), use it
     if 'template' in wb.sheetnames:
         sheet = wb['template']
 
@@ -239,18 +253,22 @@ def reconcile_inventory(pos_file_path, marketplace_file_path):
     col_var = 14
     col_sku = 9
     col_stock = 13
+    col_price = None
     
-    # Auto-detect if row 1 has headers
     for c in range(1, sheet.max_column + 1):
         v = str(sheet.cell(row=1, column=c).value or '').lower()
         if 'product name' in v or 'item name' in v: col_name = c
         elif 'variation' in v: col_var = c
         elif 'sku' in v and 'shop' not in v: col_sku = c
         elif 'parklane' in v or 'stock' in v or 'quantity' in v: col_stock = c
+        elif 'price' in v: col_price = c
 
-    # If row 5 has actual data (Lazada style)
+    # Lazada 5-row header structure
     if sheet.cell(row=2, column=1).value in ('Optional', 'Mandatory'):
         row_start = 5
+    # Shopee 6-row header structure
+    elif sheet.cell(row=3, column=1).value is not None and 'mandatory' in str(sheet.cell(row=3, column=1).value).lower():
+        row_start = 7
 
     mkt_items = []
     for i in range(row_start, sheet.max_row + 1):
@@ -261,6 +279,15 @@ def reconcile_inventory(pos_file_path, marketplace_file_path):
         except: stock = 0.0
         var = str(sheet.cell(row=i, column=col_var).value or '').strip() if col_var else ''
         
+        price = 0.0
+        if col_price:
+            pval = sheet.cell(row=i, column=col_price).value
+            try: price = float(pval if pval is not None else 0)
+            except: price = 0.0
+
+        if not name and not sku:
+            continue
+
         brand = extract_brand_strict(name)
         size = extract_size(name)
         if size == "UNKNOWN" and var: size = extract_size(var)
@@ -279,6 +306,7 @@ def reconcile_inventory(pos_file_path, marketplace_file_path):
             'sku': sku,
             'var': var,
             'stock': stock,
+            'price': price,
             'brand': brand,
             'size': size,
             'ptype': ptype,
@@ -288,7 +316,25 @@ def reconcile_inventory(pos_file_path, marketplace_file_path):
         })
 
     matches = []
+    unmatched_mkt = []
+    matched_pos_codes = set()
+
     for m in mkt_items:
+        # Tier 1: Deterministic Exact SKU / Barcode Match
+        tier1_pos = None
+        if m['sku']:
+            sku_clean = m['sku'].upper().strip()
+            if sku_clean in pos_by_code:
+                tier1_pos = pos_by_code[sku_clean]
+            elif sku_clean in pos_by_barcode:
+                tier1_pos = pos_by_barcode[sku_clean]
+
+        if tier1_pos:
+            matches.append((m, tier1_pos, 1.0, "Tier 1: SKU Match"))
+            matched_pos_codes.add(tier1_pos['code'])
+            continue
+
+        # Tier 2: Deterministic Semantic Match
         best_p = None
         best_score = 0
         for p in pos_items:
@@ -322,15 +368,111 @@ def reconcile_inventory(pos_file_path, marketplace_file_path):
                 best_p = p
                 
         if best_p:
-            matches.append((m, best_p, best_score))
+            matches.append((m, best_p, best_score, "Tier 2: Semantic Match"))
+            matched_pos_codes.add(best_p['code'])
+        else:
+            unmatched_mkt.append(m)
 
-    in_sync = [ (m, p) for m, p, _ in matches if m['stock'] == p['sohq'] ]
-    discrepancies = [ (m, p) for m, p, _ in matches if m['stock'] != p['sohq'] ]
+    # Classifications
+    in_sync = []
+    discrepancies = []
+    ghost_stock = []
+    
+    pos_allocation = {}
+    for m, p, score, method in matches:
+        pos_allocation.setdefault(p['code'], []).append(m)
+        if m['stock'] > 0 and p['sohq'] == 0:
+            ghost_stock.append((m, p, "Ghost Stock: POS is 0 but Marketplace has stock"))
+        elif m['stock'] == p['sohq']:
+            in_sync.append((m, p))
+        else:
+            discrepancies.append((m, p))
+
+    # Duplicate listing check
+    duplicate_warnings = []
+    for code, m_list in pos_allocation.items():
+        if len(m_list) > 1:
+            total_mkt_stock = sum(item['stock'] for item in m_list)
+            pos_stock = pos_by_code[code]['sohq']
+            if total_mkt_stock > pos_stock:
+                duplicate_warnings.append({
+                    'code': code,
+                    'count': len(m_list),
+                    'total_mkt_stock': total_mkt_stock,
+                    'pos_stock': pos_stock,
+                    'delta': total_mkt_stock - pos_stock
+                })
+
+    unmatched_pos = [p for p in pos_items if p['code'] not in matched_pos_codes and p['sohq'] > 0]
 
     return {
         'total_pos': len(pos_items),
         'total_mkt': len(mkt_items),
-        'matches': matches,
+        'matched_count': len(matches),
         'in_sync': in_sync,
-        'discrepancies': discrepancies
+        'discrepancies': discrepancies,
+        'ghost_stock': ghost_stock,
+        'duplicate_warnings': duplicate_warnings,
+        'unmatched_mkt': unmatched_mkt,
+        'unmatched_pos': unmatched_pos,
+        'matches': matches
     }
+
+def print_summary(results):
+    print("=" * 80)
+    print(" STOCK RECONCILIATION AUDIT SUMMARY (ZERO-MISTAKE PROTOCOL)")
+    print("=" * 80)
+    print(f"Total Marketplace Listings Audited : {results['total_mkt']}")
+    print(f"Total Active POS Records Evaluated : {results['total_pos']}")
+    print(f"Total Successfully Matched         : {results['matched_count']}")
+    print(f"  - In-Sync (Identical Stock)      : {len(results['in_sync'])}")
+    print(f"  - Stock Discrepancies            : {len(results['discrepancies'])}")
+    print(f"  - Ghost Stock (POS 0, Mkt > 0)   : {len(results['ghost_stock'])}")
+    print(f"Unmatched Marketplace Listings     : {len(results['unmatched_mkt'])}")
+    print(f"Unlinked POS In-Stock Items        : {len(results['unmatched_pos'])}")
+    print("-" * 80)
+
+    if results['ghost_stock']:
+        print("\n[!] HIGH RISK GHOST STOCK (Update to 0 on Marketplace immediately):")
+        print(f"{'POS Code':<15} | {'Marketplace Name':<40} | {'Mkt Stock':<10} | {'POS SOHQ'}")
+        print("-" * 80)
+        for m, p, note in results['ghost_stock']:
+            name_short = (m['name'][:37] + '...') if len(m['name']) > 40 else m['name']
+            print(f"{p['code']:<15} | {name_short:<40} | {m['stock']:<10} | {p['sohq']}")
+
+    if results['duplicate_warnings']:
+        print("\n[!] MULTI-LISTING OVERSELLING RISKS (Cloned Listings):")
+        for dup in results['duplicate_warnings']:
+            print(f"  Code: {dup['code']} across {dup['count']} listings. Sum Mkt Stock: {dup['total_mkt_stock']} > POS SOHQ: {dup['pos_stock']} (Risk: +{dup['delta']})")
+
+    if results['discrepancies']:
+        print(f"\n[*] STOCK DISCREPANCIES ({len(results['discrepancies'])} items):")
+        print(f"{'POS Code':<15} | {'Marketplace Product':<35} | {'Variation':<20} | {'Mkt':<6} | {'POS':<6} | {'Delta'}")
+        print("-" * 95)
+        for m, p in results['discrepancies']:
+            name_short = (m['name'][:32] + '...') if len(m['name']) > 35 else m['name']
+            var_short = (m['var'][:18] + '...') if len(m['var']) > 20 else m['var']
+            delta = m['stock'] - p['sohq']
+            print(f"{p['code']:<15} | {name_short:<35} | {var_short:<20} | {m['stock']:<6.0f} | {p['sohq']:<6.0f} | {delta:+6.0f}")
+
+    print("\n" + "=" * 80)
+    print(" AUDIT COMPLETED DETERMINISTICALLY")
+    print("=" * 80)
+
+if __name__ == '__main__':
+    if len(sys.argv) < 3:
+        print("Usage: python reconcile.py <path_to_pos_file.csv> <path_to_marketplace_file.xlsx>")
+        sys.exit(1)
+
+    pos_file = sys.argv[1]
+    mkt_file = sys.argv[2]
+
+    if not os.path.exists(pos_file):
+        print(f"Error: POS file not found: {pos_file}")
+        sys.exit(1)
+    if not os.path.exists(mkt_file):
+        print(f"Error: Marketplace file not found: {mkt_file}")
+        sys.exit(1)
+
+    res = reconcile_inventory(pos_file, mkt_file)
+    print_summary(res)
