@@ -1,0 +1,58 @@
+{
+  "description": "Strict sub-line and variant guardrails to prevent false matches between sister product lines and pack multipliers.",
+  "differentiating_keywords": [
+    "BREATHE",
+    "ENERGY",
+    "SPRINT",
+    "HYDRO",
+    "PLANT",
+    "CLEAR",
+    "HARDCORE",
+    "PLUS",
+    "ISO",
+    "RIPPED",
+    "BLEND",
+    "CONCENTRATE",
+    "CASEIN",
+    "BEEF",
+    "VEGAN",
+    "SHRED",
+    "PUMP",
+    "RDX",
+    "ZERO STIM",
+    "CREAPURE",
+    "CHARGED",
+    "DECANATE"
+  ],
+  "brand_subline_rules": [
+    {
+      "brand": "Applied Nutrition",
+      "category": "Endurance Gels",
+      "strictly_isolated_lines": ["Breathe", "Energy", "Sprint"],
+      "rule": "Never match Breathe to Energy or Sprint, even if flavor and pack size are identical."
+    },
+    {
+      "brand": "Muscle Rulz",
+      "category": "Whey Protein",
+      "strictly_isolated_lines": ["Whey Rulz Plus", "Iso Rulz", "Whey Rulz Ripped"],
+      "rule": "Never match Whey Rulz Plus with Iso Rulz or Whey Rulz Ripped."
+    },
+    {
+      "brand": "Muscle Rulz",
+      "category": "Pre-Workout",
+      "strictly_isolated_lines": ["Pre Rulz", "Pre Rulz Shred", "Pre Rulz RDX"],
+      "rule": "Never cross-match Pre Rulz base with Shred or RDX variants."
+    },
+    {
+      "brand": "Applied Nutrition",
+      "category": "Protein",
+      "strictly_isolated_lines": ["Critical Whey", "Clear Whey", "Critical Plant"],
+      "rule": "Never bind Critical Whey to Clear Whey or Critical Plant."
+    }
+  ],
+  "pack_multiplier_rules": {
+    "pack_tokens": ["PACK OF 12", "PACK OF 20", "BOX OF 12", "BOX OF 20", "12 BARS", "20 GELS", "CASE OF 12"],
+    "single_tokens": ["1 SERVING", "SINGLE SERVING", "1 BAR", "1 CAN", "1 SACHET", "1 GEL"],
+    "enforcement": "NEVER match a bulk pack/box listing to a single sachet/can/bar POS SKU without an explicit POS bundle code."
+  }
+}

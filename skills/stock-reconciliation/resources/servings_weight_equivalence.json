@@ -1,0 +1,110 @@
+{
+  "description": "Standard supplement servings to net weight/volume equivalence mapping for cross-catalog inventory matching.",
+  "brand_specific_equivalences": [
+    {
+      "brand": "Keep Moment",
+      "product_line": "Daily Whey Protein",
+      "servings": "36 Servings",
+      "weight_aliases": ["1.1KG", "1.1 KG", "1100G", "1100 G"]
+    },
+    {
+      "brand": "Applied Nutrition",
+      "product_line": "Critical Whey",
+      "servings": "14 Servings",
+      "weight_aliases": ["450G", "450 G", "0.45KG"]
+    },
+    {
+      "brand": "Applied Nutrition",
+      "product_line": "Critical Whey",
+      "servings": "25 Servings",
+      "weight_aliases": ["825G", "825 G", "0.825KG"]
+    },
+    {
+      "brand": "Applied Nutrition",
+      "product_line": "Critical Whey",
+      "servings": "67 Servings",
+      "weight_aliases": ["2KG", "2.0KG", "2000G"]
+    },
+    {
+      "brand": "Applied Nutrition",
+      "product_line": "Clear Whey Hydrolysed",
+      "servings": "35 Servings",
+      "weight_aliases": ["875G", "875 G", "0.875KG"]
+    },
+    {
+      "brand": "MuscleMeds",
+      "product_line": "Carnivor Beef Protein",
+      "servings": "56 Servings",
+      "weight_aliases": ["4.5LBS", "4.5 LBS", "2KG", "2000G"]
+    },
+    {
+      "brand": "MuscleMeds",
+      "product_line": "Carnivor Beef Protein",
+      "servings": "100 Servings",
+      "weight_aliases": ["7LBS", "7 LBS", "7.3LBS", "7.3 LBS", "3.3KG"]
+    },
+    {
+      "brand": "Optimum Nutrition",
+      "product_line": "Gold Standard 100% Whey",
+      "servings": "73 Servings",
+      "weight_aliases": ["5LBS", "5 LBS", "2.27KG"]
+    },
+    {
+      "brand": "Optimum Nutrition",
+      "product_line": "Gold Standard 100% Whey",
+      "servings": "74 Servings",
+      "weight_aliases": ["5LBS", "5 LBS", "2.27KG"]
+    },
+    {
+      "brand": "Optimum Nutrition",
+      "product_line": "Gold Standard 100% Whey",
+      "servings": "29 Servings",
+      "weight_aliases": ["2LBS", "2 LBS", "907G"]
+    },
+    {
+      "brand": "Rule 1",
+      "product_line": "R1 Protein",
+      "servings": "76 Servings",
+      "weight_aliases": ["5LBS", "5 LBS", "2.27KG"]
+    },
+    {
+      "brand": "Rule 1",
+      "product_line": "R1 Whey Blend",
+      "servings": "70 Servings",
+      "weight_aliases": ["5LBS", "5 LBS", "2.27KG"]
+    },
+    {
+      "brand": "Dymatize",
+      "product_line": "ISO 100",
+      "servings": "71 Servings",
+      "weight_aliases": ["5LBS", "5 LBS", "2.27KG"]
+    }
+  ],
+  "generic_powder_equivalences": [
+    {
+      "servings": "30 Servings",
+      "weight_aliases": ["300G", "300 G", "0.3KG", "315G", "375G"]
+    },
+    {
+      "servings": "50 Servings",
+      "weight_aliases": ["250G", "250 G", "0.25KG"]
+    },
+    {
+      "servings": "60 Servings",
+      "weight_aliases": ["300G", "300 G", "0.3KG"]
+    },
+    {
+      "servings": "100 Servings",
+      "weight_aliases": ["500G", "500 G", "0.5KG"]
+    },
+    {
+      "servings": "200 Servings",
+      "weight_aliases": ["1KG", "1000G", "1.0KG"]
+    }
+  ],
+  "scoop_heuristic_rules": {
+    "protein_powder_scoop_grams_range": [25, 36],
+    "creatine_amino_scoop_grams_range": [3, 10],
+    "mass_gainer_scoop_grams_range": [150, 350]
+  }
+}
